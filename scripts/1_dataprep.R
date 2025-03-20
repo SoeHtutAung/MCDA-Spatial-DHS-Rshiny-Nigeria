@@ -97,7 +97,6 @@ lapply(seq_along(rasters_to_save), function(i) {
 })
 
 # --- save other neccessary files ---
-write.csv(ward_pop,"outputs/data-output/wardlevel_pop.csv") # csv file for ward-level population data
 # # create a travel time surface raster file with 4 travel time categories
 tt_r_threshold <- c(0, 30, 60, 110, max(values(tt_r$HF_accessibility), na.rm = TRUE))
 tt_r_cat <- classify(tt_r, tt_r_threshold, include.lowest = TRUE)
