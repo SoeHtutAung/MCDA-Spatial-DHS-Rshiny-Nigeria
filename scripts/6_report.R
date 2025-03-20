@@ -1,5 +1,6 @@
 #######################
-# To generate tables and plots for report
+# Title : Report
+# Purpose: To generate tables and plots for report
 #######################
 
 # load libraries
