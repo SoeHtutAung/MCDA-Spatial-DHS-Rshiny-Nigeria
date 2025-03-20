@@ -6,7 +6,7 @@
 
 # --- load datasets ---
 # ward-level boundaries
-adm3 <- vect("data/shp/NGA_wards/NGA_wards.shp")
+adm3 <- vect("data/shp/NGA_wards/NGA_wards.shp") # boundaries
 # define file paths in a named list for raster files
 raster_files <- list(
   # population
@@ -48,7 +48,7 @@ adm3$itnuse <- exact_extract(itnuse, st_as_sf(adm3), "weighted_mean", weights = 
 adm3$irs <- exact_extract(irs, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of IRS
 adm3$amt <- exact_extract(amt, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of ACTs
 
-# --- save as shape file for final ward level dataset ---
+# --- save as shape file for final ward level dataset with population, travel time and malaria information ---
 writeVector (adm3, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
              overwrite = TRUE)
 
