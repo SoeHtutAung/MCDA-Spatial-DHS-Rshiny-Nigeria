@@ -1,9 +1,7 @@
 ###########################
 # Title: Data preparation
-# Purpose: Install and load libraries. Extract and load datasets.
+# Purpose: ETL process to produce final raster and vector datasets for analysis.
 ###########################
-
-# install and load libraries
 
 # --- extract and load datasets ---
 # refer to 'docs/methodology.md' to identify data sources. Assume that all raw datasets are already saved in 'data' folder.
