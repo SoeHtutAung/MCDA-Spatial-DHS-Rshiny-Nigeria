@@ -7,6 +7,7 @@
 # --- load datasets ---
 # # shape files
 adm3 <- st_read("data/shp/NGA_wards/NGA_wards.shp",stringsAsFactors = F) # ward-level boundaries
+adm3_point <- st_read("data/shp/NGA_wards_points/NGA_wards_points.shp",stringsAsFactors = F) # ward-level points
 adm1 <- adm1 <- st_read("data/shp/NGA_states/NGA_states.shp",stringsAsFactors = F) # state-level boundaries
 
 # --- data manipulation ---
@@ -53,7 +54,7 @@ adm3$tt_score <- cut(adm3$weightedtt,
                      include.lowest = TRUE, labels = FALSE)
 
 # --- add new variables ---
-adm3 <- adm3 %>% mutate(
+adm3_final <- adm3 %>% mutate(
   traveltime = round(weightedtt,1),
   # calculate rate for incidence and mortality
   inc_rate = round(inc*1000),
@@ -72,5 +73,10 @@ adm3 <- adm3 %>% mutate(
   left_join(as.data.frame(adm1) %>% dplyr::select(statecode,itn,malaria,fever,seek), by = "statecode") %>%
   st_as_sf()
 
-# --- save shapefile ---
-st_write (adm3, "data/shp/NGA_wards_vulnerability/NGA_wards_vulnerability.shp", driver="ESRI Shapefile")
+# --- prepare final datasets for dashboard ---
+# merge information with ward-level point file
+adm3_point <- st_join(adm3_point, adm3_final) %>% dplyr::select(-wardcode.y) %>% rename(wardcode = wardcode.x)
+adm3_poly <- adm3_final
+# save as shape file
+st_write(adm3_poly, "data/shp/NGA_wards_dashboard/NGA_wards_dashboard_poly.shp")
+st_write(adm3_point, "data/shp/NGA_wards_dashboard/NGA_wards_dashboard_point.shp")
