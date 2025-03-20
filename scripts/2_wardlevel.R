@@ -60,6 +60,19 @@ adm3$itnuse <- exact_extract(itnuse, adm3, "weighted_mean", weights = pop) # wei
 adm3$irs <- exact_extract(irs, adm3, "weighted_mean", weights = pop) # weighted mean of IRS
 adm3$amt <- exact_extract(amt, adm3, "weighted_mean", weights = pop) # weighted mean of ACTs
 
+# --- replace missing value with average of respective lga ---
+adm3 <- adm3 %>% group_by(lgacode) %>% mutate(
+  weightedtt = ifelse(is.na(weightedtt), mean(weightedtt, na.rm = TRUE), weightedtt), # traveltime
+  inc = ifelse(is.na(inc), mean(inc, na.rm = TRUE), inc), # incidence
+  mor = ifelse(is.na(mor), mean(mor, na.rm = TRUE), mor), # mortality
+  pfrate = ifelse(is.na(pfrate), mean(pfrate, na.rm = TRUE), pfrate), # pf parasite rate
+  itnaccess = ifelse(is.na(itnaccess), mean(itnaccess, na.rm = TRUE), itnaccess), # itn access rate
+  itnuse = ifelse(is.na(itnuse), mean(itnuse, na.rm = TRUE), itnuse), # itn use rate
+  irs = ifelse(is.na(irs), mean(irs, na.rm = TRUE), irs), # irs
+  amt = ifelse(is.na(amt), mean(amt, na.rm = TRUE), amt), # antimalarial treatment
+) %>%
+  ungroup()
+
 # --- travel time by driving to capital city (Abuja) by each ward ---
 # According to request from NMCP, MOH, they would like to add criteria according to ***driving distance*** to Abuja
 # # create a sf object (point) for Abuja
