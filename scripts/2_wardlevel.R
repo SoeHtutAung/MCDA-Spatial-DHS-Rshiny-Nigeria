@@ -1,6 +1,6 @@
 ###########################
 # Title: Ward-level shape file
-# Purpose: Extract and append ward-level total population to admin 3 shape file. Create a csv file of ward-level population at different travel time categories
+# Purpose: Extract and append ward-level population and malaria indicators to admin 3 shape file. Create a csv file of ward-level population at different travel time categories
 # Description: We have made ready-to-analyze spatial datasets using '1_dataprep.R'. Now we will load those datasets and analyze.
 ###########################
 
