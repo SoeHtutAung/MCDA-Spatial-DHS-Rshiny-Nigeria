@@ -65,6 +65,9 @@ mal_pfrate <- mal_pfrate[[1]] # keep first layer only as only NA values in secon
 # # simplify sptial files for efficiency
 # remove unnecessary columns
 adm3_v1 <- adm3_v [,c("FID","statecode","lgacode","wardcode","wardname","urban")]
+# save as shape file of cleaned ward-level dataset
+writeVector (adm3_v1, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
+             overwrite = TRUE)
 # reduce resolution of raster to 1x1km
 pop_r_1km <- aggregate(pop_r,fact = c(10,10), fun = sum_no_na,# from 100x100m to 1x1km, combined
                        filename = "outputs/plots/pop_sur_1km.tif") # export
@@ -92,14 +95,6 @@ output_files <- c("tt_sur_final.tif", "pop_sur_final.tif", "mal_inc_final.tif",
 lapply(seq_along(rasters_to_save), function(i) {
   writeRaster(rasters_to_save[[i]], file.path("outputs/plots", output_files[i]), overwrite = TRUE)
 })
-
-# --- append population data to ward boundary (cleaned - v1) vector file  ---
-# ward-level population data extraction from raster using exactextractr package
-ward_pop <- exact_extract(pop_r_1km, st_as_sf(adm3_v1), "sum") # total pop 216,025,594 
-adm3_v1$population <- ward_pop # append population column in vector file
-# save as shape file for final ward level dataset
-writeVector (adm3_v1, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
-             overwrite = TRUE)
 
 # --- save other neccessary files ---
 write.csv(ward_pop,"outputs/data-output/wardlevel_pop.csv") # csv file for ward-level population data
