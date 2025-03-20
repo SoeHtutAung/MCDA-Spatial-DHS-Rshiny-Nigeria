@@ -125,4 +125,5 @@ travel_times <- raster::extract(tt_abj, st_coordinates(adm3_point))
 adm3_point$tt_abuja <- round(travel_times/60,2) # convert minutes to hours
 summary(adm3_point$tt_abuja) # mean 5.336 with 9 NAs
 
-# --- save as shape file for final ward level dataset with population, travel time and malaria information ---
+# # save final ward level point file with driving time informaiton ---
+st_write(adm3_point, "data/shp/NGA_wards_points/NGA_wards_points.shp", driver = "ESRI Shapefile")
