@@ -10,7 +10,7 @@ library(tmap) # for viewing map
 source("scripts/map_maker.R") # for map_maker function
 
 # --- load datasets ----
-adm3 <- st_read("data/shp/NGA_wards/NGA_wards.shp")
+adm3 <- st_read("data/shp/NGA_wards_dashboard/NGA_wards_dashboard_poly.shp")
 # vul <- na.omit(adm3$vul)
 
 # --- define neighbours and weights ---
