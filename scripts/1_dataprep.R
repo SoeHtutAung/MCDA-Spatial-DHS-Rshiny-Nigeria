@@ -61,6 +61,10 @@ mal_inc <- mal_inc[[1]] # keep first layer only as only NA values in second laye
 mal_mor <- mal_mor[[1]] # keep first layer only as only NA values in second layer
 mal_pfrate <- mal_pfrate[[1]] # keep first layer only as only NA values in second layer
 
+# # change state code of Nasarawa from NA to character "NA"
+adm3_v <- adm3_v %>%
+  mutate(statecode = if_else(is.na(statecode), "NA", statecd))
+
 # --- data transformation ---
 # # simplify sptial files for efficiency
 # remove unnecessary columns
