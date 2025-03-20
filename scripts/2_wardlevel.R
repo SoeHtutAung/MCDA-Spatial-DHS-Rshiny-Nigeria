@@ -1,7 +1,7 @@
 ###########################
 # Title: Ward-level shape file
-# Purpose: Extract and append ward-level population, malaria indicators, travel time and conflict data to admin 3 shape file. Create a csv file of ward-level population at different travel time categories
-# Description: We have made ready-to-analyze spatial datasets using '1_dataprep.R'. Now we will load those datasets and analyze. 
+# Purpose: Extract and append ward-level population, malaria indicators, travel time and conflict data to admin 3 shape files, and save them. Create a csv file of ward-level population at different travel time categories
+# Description: We have made ready-to-analyze spatial datasets using '1_dataprep.R'. Now we will load those datasets and analyze. Regarding conflict information, we have requested from ACLED website for academic purpose and aleady save it in data folder.
 ###########################
 
 # --- load datasets ---
@@ -12,7 +12,7 @@ adm1 <- st_read("data/shp/GRID3_NGA_states/NGA_states.shp",stringsAsFactors = F)
 adm2 <- st_read("data/shp/GRID3_NGA_LGA/GRID3_NGA_LGA.shp",stringsAsFactors = F)
 # # ward-level
 adm3 <- st_read("data/shp/NGA_wards/NGA_wards.shp",stringsAsFactors = F) # boundaries
-adm3_point <- vect("data/shp/NGA_wards_points/NGA_wards_points.shp") # points
+adm3_point <- st_read("data/shp/NGA_wards_points/NGA_wards_points.shp",stringsAsFactors = F) # points
 
 # # population and malaria information
 # define file paths in a named list for raster files
