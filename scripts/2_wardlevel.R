@@ -77,8 +77,10 @@ below60 <- exact_extract(pop_below60, st_as_sf(adm3), "sum")
 # combine the vectors into ward-level data frame
 wardlevel_tt <- data.frame(
   ID = as.character(adm3$wardcode),
+  # two categories
   tt_above60 = above60,
   tt_below60 = below60,
+  # four categories
   tt_below30 = below30,
   tt_30_60 = tt_30_60,
   tt_60_110 = tt_60_110,
