@@ -65,9 +65,6 @@ mal_pfrate <- mal_pfrate[[1]] # keep first layer only as only NA values in secon
 # # simplify sptial files for efficiency
 # remove unnecessary columns
 adm3_v1 <- adm3_v [,c("FID","statecode","lgacode","wardcode","wardname","urban")]
-# save as shape file of cleaned ward-level dataset
-writeVector (adm3_v1, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
-             overwrite = TRUE)
 # reduce resolution of raster to 1x1km
 pop_r_1km <- aggregate(pop_r,fact = c(10,10), fun = sum_no_na,# from 100x100m to 1x1km, combined
                        filename = "outputs/plots/pop_sur_1km.tif") # export
@@ -84,7 +81,28 @@ resampled_rasters <- lapply(rasters_to_resample, function(raster) {
 names(resampled_rasters) <- c("tt_r", "mal_inc", "mal_mor", "mal_pfrate", "mal_itnaccess", "mal_itnuse", "mal_irs", "mal_amt") # assign names to list
 list2env(resampled_rasters, envir = .GlobalEnv) # assign each raster to the global environment
 
-# --- saved output raster files ---
+# # transform polygon to points for wards
+# extract centroids ward
+adm3_coor <- st_as_sf(adm3_v1) %>% # from Spatvector to sf object
+  st_centroid() %>% # convert to points
+  st_coordinates() # get coordinates
+# create data frame from sf object and rename for clarity
+adm3_xy <- data.frame(
+  wardcode = adm3_v1$wardcode,  # to match with shape file
+  long = adm3_coor[, 1],    # longitude of centroids
+  lat = adm3_coor[, 2])      # latitude of centroids
+# re-transform data frame as sf object
+adm3_point <- st_as_sf(adm3_xy, coords = c("long", "lat"), crs = 4326)
+
+# --- saved output files ---
+# # vector files
+# save shape file of cleaned ward-level polygon dataset (terra package is used as SpatVector)
+writeVector (adm3_v1, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
+             overwrite = TRUE)
+# save shape file of cleaned ward-level point dataset (sf package is used as sf object)
+st_write(adm3_point, "data/shp/NGA_wards_points/NGA_wards_points.shp", driver = "ESRI Shapefile")
+
+# # raster files
 # Ready-to-analyze raster datasets are saved in 'output' folder for further analysis.  
 rasters_to_save <- list(tt_r, pop_r_1km, mal_inc, mal_mor, mal_pfrate, mal_itnaccess, mal_itnuse, mal_irs, mal_amt) # list of rasters to save
 # corresponding file names
