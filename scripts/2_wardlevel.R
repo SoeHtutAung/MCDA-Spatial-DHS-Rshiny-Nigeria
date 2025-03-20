@@ -17,8 +17,10 @@ tt_cat_2 <- rast("outputs/plots/tt_cat_60.tif") # two categories *** 578,358 NAs
 ward_pop <- exact_extract(pop, st_as_sf(adm3), "sum") # total pop 216,025,594 
 adm3$population <- ward_pop # append population column in vector file
 # save as shape file for final ward level dataset
-writeVector (adm3_v1, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
+writeVector (adm3, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
              overwrite = TRUE)
+# save as csv file as well
+write.csv(ward_pop,"outputs/data-output/wardlevel_pop.csv") # csv file for ward-level population data
 
 # # create population raster surfaces for travel time categories (total population 216,442,127)
 # produce population surfaces for different travel time categories (4 categories)
