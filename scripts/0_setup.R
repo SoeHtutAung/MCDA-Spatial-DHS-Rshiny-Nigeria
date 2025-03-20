@@ -6,7 +6,7 @@
 # --- install and load packages ---
 # # create list of required packages
 required_packages <- c(
-  "tidyverse", 
+  "tidyverse", "stringr",
   "sf", "rmapshaper", "raster", "terra", "exactextractr", "spatstat", # to process spatial files
   "mapview", "leaflet", "leafem", "leaflet.extras2", # to customize maps
   "xlsx", "openxlsx", # to process excel files
