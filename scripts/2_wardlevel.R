@@ -5,8 +5,13 @@
 ###########################
 
 # --- load datasets ---
-# # ward-level boundaries
-adm3 <- vect("data/shp/NGA_wards/NGA_wards.shp") # boundaries
+# # administrative boundaries
+# state-level
+adm1 <- st_read("data/shp/GRID3_NGA_states/NGA_states.shp",stringsAsFactors = F)
+# lga-level
+adm2 <- st_read("data/shp/GRID3_NGA_LGA/GRID3_NGA_LGA.shp",stringsAsFactors = F)
+# # ward-level
+adm3 <- st_read("data/shp/NGA_wards/NGA_wards.shp",stringsAsFactors = F) # boundaries
 adm3_point <- vect("data/shp/NGA_wards_points/NGA_wards_points.shp") # points
 
 # # population and malaria information
@@ -38,22 +43,22 @@ conflict <- read.csv("data/acled_points.csv", as.is=T)
 
 # --- extract and append population data, travel time and disease burden data to ward boundary vector file  ---
 # # ward-level total population is extracted from raster using exactextractr package
-ward_pop <- exact_extract(pop, st_as_sf(adm3), "sum") # total pop 216,025,594 
+ward_pop <- exact_extract(pop, adm3, "sum") # total pop 216,025,594 
 adm3$population <- ward_pop # append population column in vector file
 # save as csv file as well
 write.csv(ward_pop,"outputs/data-output/wardlevel_pop.csv") # csv file for ward-level population data
 
 # # weighted mean travel time at each ward using exactextractr package and update the shape file
-adm3$weightedtt <- exact_extract(tt, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean travel time
+adm3$weightedtt <- exact_extract(tt, adm3, "weighted_mean", weights = pop) # weighted mean travel time
 
 # # weighted mean incidence and mortality at each ward using exactextractr package and update the shape file
-adm3$inc <- exact_extract(inc, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean incidence
-adm3$mor <- exact_extract(mor, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean mortality
-adm3$pfrate <- exact_extract(pfrate, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean parasite prevalence rate
-adm3$itnaccess <- exact_extract(itnaccess, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of access to ITN
-adm3$itnuse <- exact_extract(itnuse, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of use of ITN
-adm3$irs <- exact_extract(irs, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of IRS
-adm3$amt <- exact_extract(amt, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of ACTs
+adm3$inc <- exact_extract(inc, adm3, "weighted_mean", weights = pop) # weighted mean incidence
+adm3$mor <- exact_extract(mor, adm3, "weighted_mean", weights = pop) # weighted mean mortality
+adm3$pfrate <- exact_extract(pfrate, adm3, "weighted_mean", weights = pop) # weighted mean parasite prevalence rate
+adm3$itnaccess <- exact_extract(itnaccess, adm3, "weighted_mean", weights = pop) # weighted mean of access to ITN
+adm3$itnuse <- exact_extract(itnuse, adm3, "weighted_mean", weights = pop) # weighted mean of use of ITN
+adm3$irs <- exact_extract(irs, adm3, "weighted_mean", weights = pop) # weighted mean of IRS
+adm3$amt <- exact_extract(amt, adm3, "weighted_mean", weights = pop) # weighted mean of ACTs
 
 # --- travel time by driving to capital city (Abuja) by each ward ---
 # According to request from NMCP, MOH, they would like to add criteria according to ***driving distance*** to Abuja
@@ -90,18 +95,9 @@ summary(adm3_point$tt_abuja) # mean 5.336 with 9 NAs
 
 # add the extracted values as a new column,tt_abuja , to ward level polygon file
 adm3 <- adm3 %>%
-  st_as_sf() %>%                        # convert SpatVector to sf
   st_transform(st_crs(adm3_point)) %>%  # align CRS with adm3_point
   st_join(adm3_point, left = TRUE) %>%  # perform spatial join
   select(names(adm3), tt_abj) %>%       # retain original columns and add tt_abj
-  vect()                                # convert adm3 polygon back to SpatVector
-
-# --- save as shape file for final ward level dataset with population, travel time and malaria information ---
-# # polygon shape file
-writeVector (adm3, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
-             overwrite = TRUE)
-# # save final ward level point file with driving time informaiton
-st_write(adm3_point, "data/shp/NGA_wards_points/NGA_wards_points.shp", driver = "ESRI Shapefile")
 
 # --- create population raster for tt categories ---
 # # create population raster surfaces for travel time categories (total population 216,442,127)
@@ -116,13 +112,13 @@ pop_below60 <- pop * (tt_cat_2 == 0) # population for less than 1 hour 173,338,9
 
 # # extract ward-level population for tt categories 
 # ward-level population in different travel time categories (4 categories) is extracted
-below30 <- exact_extract(pop_below30, st_as_sf(adm3), "sum")
-tt_30_60 <- exact_extract(pop_30_60, st_as_sf(adm3), "sum")
-tt_60_110 <- exact_extract(pop_60_110, st_as_sf(adm3), "sum")
-tt_above110 <- exact_extract(pop_above110, st_as_sf(adm3), "sum")
+below30 <- exact_extract(pop_below30, adm3, "sum")
+tt_30_60 <- exact_extract(pop_30_60, adm3, "sum")
+tt_60_110 <- exact_extract(pop_60_110, adm3, "sum")
+tt_above110 <- exact_extract(pop_above110, adm3, "sum")
 # ward-level population in different travel time categories (2 categories) is extracted
-above60 <- exact_extract(pop_60above, st_as_sf(adm3), "sum")
-below60 <- exact_extract(pop_below60, st_as_sf(adm3), "sum")
+above60 <- exact_extract(pop_60above, adm3, "sum")
+below60 <- exact_extract(pop_below60, adm3, "sum")
 
 # # save the ward-level population for different tt categories
 # combine the vectors into ward-level data frame
@@ -139,8 +135,15 @@ wardlevel_tt <- data.frame(
   total = above60 + below60, #215,982,062
   stringsAsFactors = FALSE
 )
-# write to csv
+
+# # write to csv
 write.csv(wardlevel_tt, "outputs/data-output/wardlevel_tt.csv", row.names = FALSE)
+
+# # append proportion of population beyond 60 minutes to ward-level shape file
+# create column for percentage of population beyond 60 minutes travel time and add to shape file
+wardlevel_tt$percent <- with(wardlevel_tt, ifelse(total == 0, 0, tt_above60 / total)) # avoid NA values
+# include percent column and enter value for each ward
+adm3$percent <- wardlevel_tt$percent[match(adm3$wardcode, wardlevel$ID)]
 
 # --- conflict index ---
 # # extract selected columns from conflict dataframe and convert to sf object
@@ -150,7 +153,7 @@ conflict <- conflict %>% select (event_date, event_type, assoc_actor_2, admin1, 
 
 # # create ward-level conflict dataset
 # join between conflict data point file and ward boundaries and summarize 3 major indicators at ward-level
-join_conflict <- st_join(conflict, st_as_sf(adm3)) %>% # join with adm3 shape file
+join_conflict <- st_join(conflict, adm3) %>% # join with adm3 shape file
   group_by(wardcode) %>% summarize (events = n(), # 1 - 87, mean 4.228
                                     fatalities = sum(fatalities, na.rm = T), # 0 - 453, mean 11.06
                                     population = first(population)) %>%
@@ -171,3 +174,32 @@ conflict_final <-  join_conflict %>%
 
 # # save as csv file
 write.csv(conflict_final, "outputs/data-output/wardlevel_conflict.csv", row.names = FALSE)
+
+# # append conflict index to ward-level shape file
+# create column for conflict index and add to shape file
+adm3 <- adm3 %>%
+  left_join(conflict_final, by = "wardcode") %>%  # left join with conflict dataset
+  mutate(conflict_index = if_else(is.na(conflict_index), 0, conflict_index)) %>%       # assign NA values to 0
+
+# --- append information from state- and lga-level datasets ---
+adm3_poly <- adm3 %>% 
+  # join state name and state level indicators from adm1
+  left_join(as.data.frame(adm1) %>% dplyr::select(statecode,statename,geozone, itn,malaria,fever,seek), by = "statecode") %>%
+  mutate (zone = case_when(
+    geozone == "SSZ" ~ "South South",
+    geozone == "SEZ" ~ "South East",
+    geozone == "SWZ" ~ "South West",
+    geozone == "NEZ" ~ "North East",
+    geozone == "NWZ" ~ "North West",
+    geozone == "NCZ" ~ "North Central",
+  )) %>% dplyr::select(-geozone) %>%
+  # join lga name 
+  left_join(as.data.frame(adm2) %>% dplyr::select (lgacode,lganame), by = "lgacode") %>%
+  # safe as sf object
+  st_as_sf() 
+
+# --- save as shape file for final ward-level dataset with population, travel time and malaria information ---
+# # polygon shape file
+st_write(adm3_poly, "data/shp/NGA_wards/NGA_wards.shp", driver = "ESRI Shapefile")
+# # save final ward level point file with driving time informaiton
+st_write(adm3_point, "data/shp/NGA_wards_points/NGA_wards_points.shp", driver = "ESRI Shapefile")
