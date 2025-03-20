@@ -9,16 +9,15 @@
 # refer to 'docs/methodology.md' to identify data sources. Assume that all datasets are already saved in 'data' folder.
 # # load spatial files 
 adm0 <- load_shapefile(country = "Nigeria", admin_level = 0) # adm0 boundary using PATHtools
-pop_r <- rast("data/raster/NGA_population_v2_1_gridded.tif") # population SpatRaster
 adm3_v <- vect("data/shp/GRID3_NGA_wards/Nigeria_-_Ward_Boundaries.shp") # ward boundary SpatVector
-mal_inc <- rast("data/raster/202406_Global_Pf_Incidence_Rate_NGA_2022.tiff") # 5x5km incidence surface from MAP
-mal_mor <- rast("data/raster/202406_Global_Pf_Mortality_Rate_NGA_2022.tiff") # 5x5km mortality surface from MAP
-mal_itnaccess <- rast("data/raster/202406_Africa_Insecticide_Treated_Net_Access_NGA_2022.tiff") # 5x5km ITN access surface from MAP
-mal_itnuse <- rast("data/raster/202406_Africa_Insecticide_Treated_Net_Use_Rate_NGA_2022.tiff") # 5x5km ITN use surface from MAP
-mal_pfrate <- rast("data/raster/202406_Global_Pf_Parasite_Rate_NGA_2022.tiff") # 5x5km Pf rate surface from MAP
-mal_irs <- rast("data/raster/202406_Africa_IRS_Coverage_NGA_2022.tiff") # 5x5km IRS surface from MAP
-mal_amt <- rast("data/raster/202406_Global_Antimalarial_Effective_Treatment_NGA_2022.tiff") # 5x5km ACT surface from MAP
+pop_r <- rast("data/raster/NGA_population_v2_1_gridded.tif") # population SpatRaster
 fact_grid3 <- st_read("data/shp/GRID3_NGA_facilities/GRID3_NGA_-_Health_Facilities_.shp") # health facilities locations from GRID3
+# batch load modelled surfaces from MAP, 5x5km
+map_raster_files <- list.files("data/raster", pattern = "202406_.*_NGA_2022.tiff$", full.names = TRUE) # define file paths
+map_rasters <- rast(map_raster_files) # load all surfaces
+names(map_rasters) <- c("mal_inc", "mal_mor", "mal_itnaccess", "mal_itnuse", "mal_pfrate", "mal_irs", "mal_amt")
+raster_list <- setNames(as.list(mal_rasters), raster_names) # create name list
+list2env(raster_list, envir = .GlobalEnv) # assign each raster to the global environment
 # get friction surface function from PATHtools package is used
 get_friction_surface(shp = adm0, 
                      transport_type = "walking",
