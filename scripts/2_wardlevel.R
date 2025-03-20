@@ -184,7 +184,7 @@ adm3 <- adm3 %>%
 # --- append information from state- and lga-level datasets ---
 adm3_poly <- adm3 %>% 
   # join state name and state level indicators from adm1
-  left_join(as.data.frame(adm1) %>% dplyr::select(statecode,statename,geozone, itn,malaria,fever,seek), by = "statecode") %>%
+  left_join(as.data.frame(adm1) %>% dplyr::select(statecode,statename,geozone), by = "statecode") %>%
   mutate (zone = case_when(
     geozone == "SSZ" ~ "South South",
     geozone == "SEZ" ~ "South East",
