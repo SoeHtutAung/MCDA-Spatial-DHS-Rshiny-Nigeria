@@ -1,7 +1,7 @@
 ###########################
 # Title: Spatial analysis
 # Purpose: check spatial clustering
-# Description: Not preseted during MSc project. Because the purpose of the MSc project is to be able to define parameters for vulnerability score, and thus there is no fixed vulnerability score at this step
+# Description: Using a default weighting for vulnerability score, we checked clustering. But the result was not presented during MSc project. Because the purpose of the MSc project is to be able to define parameters for vulnerability score, and thus there is no fixed vulnerability score at this step
 ###########################
 
 # --- Load library and shape file ---
