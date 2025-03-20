@@ -49,9 +49,53 @@ adm3$itnuse <- exact_extract(itnuse, st_as_sf(adm3), "weighted_mean", weights = 
 adm3$irs <- exact_extract(irs, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of IRS
 adm3$amt <- exact_extract(amt, st_as_sf(adm3), "weighted_mean", weights = pop) # weighted mean of ACTs
 
+# --- travel time by driving to capital city (Abuja) by each ward ---
+# According to request from NMCP, MOH, they would like to add criteria according to ***driving distance*** to Abuja
+# # create a sf object (point) for Abuja
+# get lat long for Abuja
+abuja <- data.frame(LABEL = "abuja", X = 7.491302, Y = 9.072264) # https://www.latlong.net/place/abuja-nigeria-3321.html
+# transform data frame as sf object
+abuja <- st_as_sf(abuja, coords = c("X", "Y"), crs = 4326)
+# extract coordinates and append as separate columns
+abuja$X <- st_coordinates(abuja)[, 1]
+abuja$Y <- st_coordinates(abuja)[, 2]
+
+# # create travel time raster surface to Abuja
+# when extracting motorized friction surface from MAP, there was a problem with PATHtools::get_friction_surface(). So, motorized friction surface was downloaded from MAP and saved 
+fri_sur <- raster("data/raster/202001_Global_Motorized_Friction_Surface_NGA.tiff") # load friction surface
+# create travel surface using PATHtools
+create_travel_surface(friction_surface = "data/raster/202001_Global_Motorized_Friction_Surface_NGA.tiff",
+                      points = abuja, # sf object with only one point, which is Abuja
+                      extent_file = fri_sur,
+                      id_col = "LABEL", x_col = "X", y_col = "Y",
+                      output_dir = "outputs/plots/",
+                      overwrite = TRUE) # same name as walk only friction surface, thus need to be cautious when processing
+# load travel surface
+tt_abj <- raster("outputs/plots/HF_accessibility.tif") # Note: name 'HF_accessibility' is given inside create_travel_surface function. This surface is travel surface to Abuja, not HF
+
+# # extract and append travel time to Abuja in ward-level file 
+# ensure that crs are the same between vector (points) and raster
+adm3_point <- st_transform(adm3_point, crs(tt_abj))
+# extract travel time values at the points
+travel_times <- raster::extract(tt_abj, st_coordinates(adm3_point))
+# add the extracted values as a new column to the ward level point file
+adm3_point$tt_abuja <- round(travel_times/60,2) # convert minutes to hours
+summary(adm3_point$tt_abuja) # mean 5.336 with 9 NAs
+
+# add the extracted values as a new column,tt_abuja , to ward level polygon file
+adm3 <- adm3 %>%
+  st_as_sf() %>%                        # convert SpatVector to sf
+  st_transform(st_crs(adm3_point)) %>%  # align CRS with adm3_point
+  st_join(adm3_point, left = TRUE) %>%  # perform spatial join
+  select(names(adm3), tt_abj) %>%       # retain original columns and add tt_abj
+  vect()                                # convert adm3 polygon back to SpatVector
+
 # --- save as shape file for final ward level dataset with population, travel time and malaria information ---
+# # polygon shape file
 writeVector (adm3, "data/shp/NGA_wards/NGA_wards.shp",filetype = "ESRI Shapefile",
              overwrite = TRUE)
+# # save final ward level point file with driving time informaiton
+st_write(adm3_point, "data/shp/NGA_wards_points/NGA_wards_points.shp", driver = "ESRI Shapefile")
 
 # --- create population raster for tt categories ---
 # # create population raster surfaces for travel time categories (total population 216,442,127)
@@ -91,39 +135,3 @@ wardlevel_tt <- data.frame(
 )
 # write to csv
 write.csv(wardlevel_tt, "outputs/data-output/wardlevel_tt.csv", row.names = FALSE)
-
-# --- travel time by driving to capital city (Abuja) by each ward ---
-# According to request from NMCP, MOH, they would like to add criteria according to ***driving distance*** to Abuja
-# # create a sf object (point) for Abuja
-# get lat long for Abuja
-abuja <- data.frame(LABEL = "abuja", X = 7.491302, Y = 9.072264) # https://www.latlong.net/place/abuja-nigeria-3321.html
-# transform data frame as sf object
-abuja <- st_as_sf(abuja, coords = c("X", "Y"), crs = 4326)
-# extract coordinates and append as separate columns
-abuja$X <- st_coordinates(abuja)[, 1]
-abuja$Y <- st_coordinates(abuja)[, 2]
-
-# # create travel time raster surface to Abuja
-# when extracting motorized friction surface from MAP, there was a problem with PATHtools::get_friction_surface(). So, motorized friction surface was downloaded from MAP and saved 
-fri_sur <- raster("data/raster/202001_Global_Motorized_Friction_Surface_NGA.tiff") # load friction surface
-# create travel surface using PATHtools
-create_travel_surface(friction_surface = "data/raster/202001_Global_Motorized_Friction_Surface_NGA.tiff",
-                      points = abuja, # sf object with only one point, which is Abuja
-                      extent_file = fri_sur,
-                      id_col = "LABEL", x_col = "X", y_col = "Y",
-                      output_dir = "outputs/plots/",
-                      overwrite = TRUE) # same name as walk only friction surface, thus need to be cautious when processing
-# load travel surface
-tt_abj <- raster("outputs/plots/HF_accessibility.tif") # Note: name 'HF_accessibility' is given inside create_travel_surface function. This surface is travel surface to Abuja, not HF
-
-# # extract and append travel time to Abuja in ward-level file 
-# ensure that crs are the same between vector (points) and raster
-adm3_point <- st_transform(adm3_point, crs(tt_abj))
-# extract travel time values at the points
-travel_times <- raster::extract(tt_abj, st_coordinates(adm3_point))
-# add the extracted values as a new column to the ward level point file
-adm3_point$tt_abuja <- round(travel_times/60,2) # convert minutes to hours
-summary(adm3_point$tt_abuja) # mean 5.336 with 9 NAs
-
-# # save final ward level point file with driving time informaiton ---
-st_write(adm3_point, "data/shp/NGA_wards_points/NGA_wards_points.shp", driver = "ESRI Shapefile")
