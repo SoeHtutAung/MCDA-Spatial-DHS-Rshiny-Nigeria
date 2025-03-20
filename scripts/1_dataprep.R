@@ -85,6 +85,14 @@ resampled_rasters <- lapply(rasters_to_resample, function(raster) {
 names(resampled_rasters) <- c("tt_r", "mal_inc", "mal_mor", "mal_pfrate", "mal_itnaccess", "mal_itnuse", "mal_irs", "mal_amt") # assign names to list
 list2env(resampled_rasters, envir = .GlobalEnv) # assign each raster to the global environment
 
+# # rescale population for 2024
+# set parameters
+scale_factor <- (227883000 - global(pop_r_1km, sum, na.rm = TRUE)[1]) / global(pop_r_1km, sum, na.rm = TRUE)[1] 
+growth_rate <- 0.0239  # average population growth rate (2021-23)
+# apply rescaling to each raster cell
+pop_23 <- pop_r_1km * (1 + scale_factor)  # rescale to 2023
+pop_r_1km <- pop_23 * (1 + growth_rate)  # estimate population for 2024
+
 # # transform polygon to points for wards
 # extract centroids ward
 adm3_coor <- st_as_sf(adm3_v1) %>% # from Spatvector to sf object
