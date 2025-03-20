@@ -1,13 +1,15 @@
 ###########################
 # Title: Ward-level shape file
-# Purpose: Extract and append ward-level population and malaria indicators to admin 3 shape file. Create a csv file of ward-level population at different travel time categories
-# Description: We have made ready-to-analyze spatial datasets using '1_dataprep.R'. Now we will load those datasets and analyze.
+# Purpose: Extract and append ward-level population, malaria indicators, travel time and conflict data to admin 3 shape file. Create a csv file of ward-level population at different travel time categories
+# Description: We have made ready-to-analyze spatial datasets using '1_dataprep.R'. Now we will load those datasets and analyze. 
 ###########################
 
 # --- load datasets ---
-# ward-level boundaries
+# # ward-level boundaries
 adm3 <- vect("data/shp/NGA_wards/NGA_wards.shp") # boundaries
 adm3_point <- vect("data/shp/NGA_wards_points/NGA_wards_points.shp") # points
+
+# # population and malaria information
 # define file paths in a named list for raster files
 raster_files <- list(
   # population
@@ -29,6 +31,10 @@ raster_files <- list(
 rasters <- lapply(raster_files, rast)
 # save individual object from the list into environment
 list2env(rasters, envir = .GlobalEnv)
+
+# # conflict information
+# load geo-referenced csv file for conflict locations
+conflict <- read.csv("data/acled_points.csv", as.is=T)
 
 # --- extract and append population data, travel time and disease burden data to ward boundary vector file  ---
 # # ward-level total population is extracted from raster using exactextractr package
@@ -135,3 +141,33 @@ wardlevel_tt <- data.frame(
 )
 # write to csv
 write.csv(wardlevel_tt, "outputs/data-output/wardlevel_tt.csv", row.names = FALSE)
+
+# --- conflict index ---
+# # extract selected columns from conflict dataframe and convert to sf object
+conflict <- conflict %>% select (event_date, event_type, assoc_actor_2, admin1, admin2,
+                                 fatalities, latitude, longitude ,geo_precision, population_best) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+# # create ward-level conflict dataset
+# join between conflict data point file and ward boundaries and summarize 3 major indicators at ward-level
+join_conflict <- st_join(conflict, st_as_sf(adm3)) %>% # join with adm3 shape file
+  group_by(wardcode) %>% summarize (events = n(), # 1 - 87, mean 4.228
+                                    fatalities = sum(fatalities, na.rm = T), # 0 - 453, mean 11.06
+                                    population = first(population)) %>%
+  as.data.frame() %>% select(-geometry)
+# calculate conflict index
+conflict_final <-  join_conflict %>%
+  mutate(event_rate = if_else(population == 0, 0, (events / population) * 1000) , # 0 - 1099.1883, mean 1.0841
+         severity = if_else(events == 0, 0, fatalities / events), # 0 -53 mean 2.2324
+         # log transformation for skewed data
+         log_event = log(event_rate + 1), # +1 to avoid log(0) error, 0 - 7.00324, mean 0.23427
+         log_severity = log(severity + 1), # +1 to avoid log(0) error, 0 - 3.9890, mean 0.8434
+         # score calculation using ntile
+         event_score = if_else (events == 0, 0, ntile(log_event, 4)),  # 1 - 4 as there was at least one event 
+         severity_score = if_else (fatalities == 0, 0, ntile(log_severity, 4)),  # starts at 0 as not every event has fatality
+         # calculate conflict index 
+         conflict_index = round(event_score * 1 + severity_score * 1,0)) %>% # add weights
+  select (wardcode, conflict_index)
+
+# # save as csv file
+write.csv(conflict_final, "outputs/data-output/wardlevel_conflict.csv", row.names = FALSE)
