@@ -4,4 +4,4 @@ This folder is a place to save processed datasets. Files are not uploaded in thi
 | Name | Description |
 | ---- | ---- |
 | data-output | Folder for processed datasets |
-| plot | Folder for processed raster surfaces, maps and charts |
+| plots | Folder for processed raster surfaces, maps and charts |
