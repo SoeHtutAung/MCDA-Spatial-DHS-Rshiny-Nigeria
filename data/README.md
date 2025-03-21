@@ -3,7 +3,7 @@ This folder is a place to save raw and processed datasets. Files are not uploade
 
 | Name | Description |
 | ---- | ---- |
-| acled_points.csv | Raw dataset from ACLED on conflict situation |
+| acled_points.csv | Raw dataset from [ACLED](https://acleddata.com/) on conflict situation |
 | dhs | Folder for raw datasets from DHS program |
 | raster | Folder for raw raster surfaces from MAP and Worldpop |
 | shp | Folder for raw shape files from GRID3 and processed shape files |
