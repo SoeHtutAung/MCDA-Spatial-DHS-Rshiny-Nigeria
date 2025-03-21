@@ -4,23 +4,13 @@
 ################################################################################
 
 # load necessary packages
-library(sf)
-library(tidyverse)
-library(bslib)
-library(shiny)
-library(shinyWidgets) # slidertextinput
-library(leaflet)
-library(plotly)
-library(viridis) # for palette with no minimum
-library(DT)
-library(shinydashboard)
-library(stringr)
-library(shinyjs) # for pdf rendering inside server
-library(processx) # for rendering static
-library(webshot) # to save as png
-library(rmarkdown) # for pdf rendering inside server
-library(quarto) # for pdf rendering, make sure to install and load processx
-library(rmapshaper) # if ms_simplify is used
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(sf, tidyverse, bslib, shiny, DT, shinydashboard, stringr, leaflet, plotly, 
+               shinyWidgets, # for slider text input
+               viridis, # for palette with no minimum
+               processx, rmarkdown, quarto, shinyjs, # for pdf rendering inside server
+               webshot, # to save as png
+               rmapshaper) # to simplify shape file for efficiency
 
 # load shape files
 adm1_poly <- st_read("data/shp/NGA_states/NGA_states.shp",stringsAsFactors = F)
