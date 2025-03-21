@@ -13,7 +13,7 @@ fact_grid3 <- st_read("data/shp/GRID3_NGA_facilities/GRID3_NGA_-_Health_Faciliti
 # batch load modelled surfaces from MAP, 5x5km
 map_raster_files <- list.files("data/raster", pattern = "202406_.*_NGA_2022.tiff$", full.names = TRUE) # define file paths
 map_rasters <- rast(map_raster_files) # load all surfaces
-names(map_rasters) <- c("mal_inc", "mal_mor", "mal_itnaccess", "mal_itnuse", "mal_pfrate", "mal_irs", "mal_amt")
+names(map_rasters) <- c("mal_itnaccess", "mal_itnuse", "mal_irs", "mal_amt", "mal_inc", "mal_mor",  "mal_pfrate") # *** order can't be changed ***
 raster_list <- setNames(as.list(mal_rasters), raster_names) # create name list
 list2env(raster_list, envir = .GlobalEnv) # assign each raster to the global environment
 # get friction surface function from PATHtools package is used
