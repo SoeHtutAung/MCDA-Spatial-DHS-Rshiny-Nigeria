@@ -69,6 +69,14 @@ adm3_v <- adm3_v %>%
 # # simplify sptial files for efficiency
 # remove unnecessary columns
 adm3_v1 <- adm3_v [,c("FID","statecode","lgacode","wardcode","wardname","urban")]
+
+# # rescale population for 2024 at 1x1km
+# set parameters
+scale_factor <- (227883000 - global(pop_r, sum, na.rm = TRUE)[1]) / global(pop_r, sum, na.rm = TRUE)[1] 
+growth_rate <- 0.0239  # average population growth rate (2021-23)
+# apply rescaling to each raster cell
+pop_23 <- pop_r * (1 + scale_factor)  # rescale to 2023
+pop_r <- pop_23 * (1 + growth_rate)  # estimate population for 2024
 # reduce resolution of raster to 1x1km
 pop_r_1km <- aggregate(pop_r,fact = c(10,10), fun = sum_no_na,# from 100x100m to 1x1km, combined
                        filename = "outputs/plots/pop_sur_1km.tif") # export
@@ -84,14 +92,6 @@ resampled_rasters <- lapply(rasters_to_resample, function(raster) {
 })
 names(resampled_rasters) <- c("tt_r", "mal_inc", "mal_mor", "mal_pfrate", "mal_itnaccess", "mal_itnuse", "mal_irs", "mal_amt") # assign names to list
 list2env(resampled_rasters, envir = .GlobalEnv) # assign each raster to the global environment
-
-# # rescale population for 2024
-# set parameters
-scale_factor <- (227883000 - global(pop_r_1km, sum, na.rm = TRUE)[1]) / global(pop_r_1km, sum, na.rm = TRUE)[1] 
-growth_rate <- 0.0239  # average population growth rate (2021-23)
-# apply rescaling to each raster cell
-pop_23 <- pop_r_1km * (1 + scale_factor)  # rescale to 2023
-pop_r_1km <- pop_23 * (1 + growth_rate)  # estimate population for 2024
 
 # # transform polygon to points for wards
 # extract centroids ward
