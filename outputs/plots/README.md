@@ -1,5 +1,5 @@
-# Data output folder
-This folder is a place to save data output from ETL process. Files are not uploaded in this public folder, but the files list is described as below:
+# Output plots folder
+This folder is a place to save plots as output from ETL process. Files are not uploaded in this public folder, but the files list is described as below:
 | Name | Description |
 | ---- | ---- |
 | fri_sur.tif | Resampled walking-only friction surface |
