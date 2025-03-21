@@ -1,5 +1,5 @@
 # MCDA-Spatial-DHS-Rshiny-Nigeria
-Multi-criteria decision analysis tool **(MCDA)** to support strengthening community health workforce using a blended approach, including data extractions, spatial optimization, and R Shiny dashboard. This project used both ***public and private*** datasets. Thus, raw datasets are not uploaded but only final dataset. 
+Multi-criteria decision analysis tool **(MCDA)** to support strengthening community health workforce using a blended approach, including data extractions, spatial optimization, and R Shiny dashboard. This project used both ***public and private*** datasets.
 
 # 1. Creating ward-level datasets
 ## 1.1 Data extraction
@@ -9,3 +9,8 @@ Refer to *Chapter 3.4 Data manipulation* of `docs/MSc project report_20250311.pd
 
 # 2. Creating interactive dashboard (RShiny App)
 Using `data/process.R` necessary packages and datasets are loaded. Scripts for dashboard are kept in `shiny_dashboard/` folder. 
+
+> [!IMPORTANT]
+> :one: Datasets are not uploaded on GitHub. <br/>
+> :two: README file is included in each folder to describe the contents. <br/>
+> :three: Shiny App is not uploaded on posit, so there is no link to the dashboard and only sample screenshots are included.
