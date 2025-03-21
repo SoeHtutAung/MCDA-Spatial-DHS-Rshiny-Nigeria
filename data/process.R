@@ -1,6 +1,6 @@
 ################################################################################
-# To produce datasets for app
-# 
+# Title: Process application
+# Purpose: To produce datasets for Shiny app
 ################################################################################
 
 # load necessary packages
@@ -23,11 +23,11 @@ library(quarto) # for pdf rendering, make sure to install and load processx
 library(rmapshaper) # if ms_simplify is used
 
 # load shape files
-adm1_poly <- st_read("data/NGA_states/NGA_states.shp",stringsAsFactors = F)
-adm3_poly <- st_read("data/NGA_wards_dashboard/NGA_wards_dashboard_poly.shp",stringsAsFactors = F)
+adm1_poly <- st_read("data/shp/NGA_states/NGA_states.shp",stringsAsFactors = F)
+adm3_poly <- st_read("data/shp/NGA_wards_dashboard/NGA_wards_dashboard_poly.shp",stringsAsFactors = F)
 adm3_poly <- ms_simplify(adm3_poly, keep = 0.50) # already 50% reduced with vulnerability shape file from original
-hf <- st_read("data/NGA_facilities/NGA_facilities.shp",stringsAsFactors = F)
-chw <- st_read("data/chw_optimize/chw_optimize.shp",stringsAsFactors = F)
+hf <- st_read("data/shp/NGA_facilities/NGA_facilities.shp",stringsAsFactors = F)
+chw <- st_read("data/shp/chw_optimize/chw_optimize.shp",stringsAsFactors = F)
 
 # clean datasets
 ## change ESRI abbreviated column names
