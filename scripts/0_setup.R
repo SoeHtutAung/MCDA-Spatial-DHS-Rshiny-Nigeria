@@ -10,8 +10,7 @@ required_packages <- c(
   "sf", "rmapshaper", "raster", "terra", "exactextractr", "spatstat", # to process spatial files
   "mapview", "leaflet", "leafem", "leaflet.extras2", # to customize maps
   "xlsx", "openxlsx", # to process excel files
-  "pacman", # more efficient handling of libraries
-  "here" # to define path to working directory
+  "pacman" # more efficient handling of libraries
 )
 
 # # install packages 
@@ -35,6 +34,3 @@ library(PATHtools) # load PATHtools
 # --- create functions to ignore NA values at terra package ---
 sum_no_na <- function(x) sum(x, na.rm = TRUE)  
 mean_no_na <- function(x) mean(x, na.rm = TRUE)
-
-# --- set working directory ---
-setwd(here())  # sets working directory to the root folder of the project
