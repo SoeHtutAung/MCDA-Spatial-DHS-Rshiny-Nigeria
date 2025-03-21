@@ -1,3 +1,8 @@
+#########################
+# UI function
+# 
+##########################
+
 # create UI
 ui <- page_navbar(
   title = "Nigeria CHW Expansion",
