@@ -73,7 +73,7 @@ adm3_v1 <- adm3_v [,c("FID","statecode","lgacode","wardcode","wardname","urban")
 # # rescale population for 2024 at 1x1km
 # set parameters
 scale_factor <- (227883000 - global(pop_r, sum, na.rm = TRUE)[1]) / global(pop_r, sum, na.rm = TRUE)[1] 
-growth_rate <- 0.0239  # average population growth rate (2021-23)
+growth_rate <- 0.0239  # average population growth rate (2021-23) from Worldbank data - Geometric mean 
 # apply rescaling to each raster cell
 pop_23 <- pop_r * (1 + scale_factor)  # rescale to 2023
 pop_r <- pop_23 * (1 + growth_rate)  # estimate population for 2024
